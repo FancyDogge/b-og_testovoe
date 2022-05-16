@@ -1,0 +1,23 @@
+{% extends 'blog/base.html' %}
+
+
+{% block title %}
+    {{ profile.user.username }}'s profile
+{% endblock title %}
+
+
+{% block content %}
+    <h4>
+        {{profile.user.username}} subscribed to:
+    </h4>
+    <ul>
+    {% for profile in profile.follows.all %}
+        <li>
+            <a href="{% url 'userprofile' profile.id %}">
+                {{ profile.user.username }}
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock content %}
+    

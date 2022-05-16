@@ -7,10 +7,10 @@
 
 
 {% block content %}
-        {% for profile in all_profiles %}
+        {% for profile in profiles %}
     
             <div>
-                <p>{{ profile.user.username }}</p>
+                <p><a href="{% url 'userprofile' profile.id %}">{{ profile.user.username }}</a></p>
             </div>
 
         {% endfor %}

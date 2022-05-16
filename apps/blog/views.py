@@ -2,7 +2,13 @@ from django.shortcuts import render
 from .models import UserProfile
 
 # Create your views here.
-def all_profiles(request):
-    all_profiles = UserProfile.objects.exclude(user=request.user)
-    context = {'all_profiles': all_profiles}
-    return render(request, 'blog/all_profiles.html', context)
+def profiles(request):
+    profiles = UserProfile.objects.exclude(user=request.user)
+    context = {'profiles': profiles}
+    return render(request, 'blog/profiles.html', context)
+
+
+def userprofile(request, pk):
+    profile = UserProfile.objects.get(pk=pk)
+    context = {'profile': profile}
+    return render(request, 'blog/userprofile.html', context)
