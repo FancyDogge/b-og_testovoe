@@ -1,0 +1,18 @@
+{% extends 'blog/base.html' %}
+
+
+{% block title %}
+    All Users
+{% endblock title %}
+
+
+{% block content %}
+        {% for profile in all_profiles %}
+    
+            <div>
+                <p>{{ profile.user.username }}</p>
+            </div>
+
+        {% endfor %}
+{% endblock content %}
+    
