@@ -10,6 +10,13 @@
     <h4>
         {{profile.user.username}} subscribed to:
     </h4>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <button name="follow" value="follow">Follow</button>
+            <button name="follow" value="unfollow">Unfollow</button>
+        </div>
+    </form>
     <ul>
     {% for profile in profile.follows.all %}
         <li>

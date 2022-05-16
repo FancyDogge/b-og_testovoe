@@ -12,6 +12,20 @@ class UserProfile(models.Model):
         return self.user.username
 
 
+class BlogPost(models.Model):
+    user = models.ForeignKey(User, related_name='blogpost', on_delete=models.DO_NOTHING)
+    title = models.CharField(max_length=55, blank=False, null=False)
+    body = models.CharField(max_length=140)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return (
+            f'Author: {self.user}, '
+            f'({self.created_at:%Y-%m-%d %H:%M}), '
+            f'Title: {self.title}'
+        )
+
+
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     if created:
