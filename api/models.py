@@ -7,23 +7,28 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     follows = models.ManyToManyField('self', symmetrical=False, related_name='followed_by', blank=True)
+    posts_read = models.ManyToManyField('api.BlogPost', related_name='post_read_by', blank=True)
 
     def __str__(self):
-        return self.user.username
+        return f'{self.user.username}\'s profile'
 
 
 class BlogPost(models.Model):
-    user = models.ForeignKey(User, related_name='blogpost', on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, related_name='blogposts', on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=55, blank=False, null=False)
-    body = models.CharField(max_length=140)
+    body = models.CharField(max_length=140, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
 
     def __str__(self):
         return (
-            f'Author: {self.user}, '
-            f'({self.created_at:%Y-%m-%d %H:%M}), '
-            f'Title: {self.title}'
+            f'AUTHOR: {self.user}, '
+            f'TITLE: {self.title}, '
+            f'CREATED: {self.created_at:%Y-%m-%d %H:%M}'
         )
+
+    class Meta:
+        ordering = ['-created_at']
 
 
 @receiver(post_save, sender=User)
