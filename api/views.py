@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .serializers import UserProfileSerializer, BlogPostSerializer
 from .models import UserProfile, BlogPost
+from django.contrib.auth.models import User
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -57,11 +58,56 @@ def getUserProfile(request, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+def postUserProfileFollow(request, pk):
+    userprofile = get_object_or_404(UserProfile, pk=pk)
+    current_user = request.user.userprofile
+    current_user.follows.add(userprofile)
+
+    current_user_serializer = UserProfileSerializer(current_user)
+    userprofile_serializer = UserProfileSerializer(userprofile)
+
+    data_to_return = {
+        'your_userprofile': current_user_serializer.data,
+        'now_followng': userprofile_serializer.data,
+        'message': f'You are now following {userprofile.user.username}'
+    }
+
+    return Response(data_to_return, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def postUserProfileUnfollow(request, pk):
+    userprofile = get_object_or_404(UserProfile, pk=pk)
+    current_user = request.user.userprofile
+    current_user.follows.remove(userprofile)
+
+    current_user_serializer = UserProfileSerializer(current_user)
+    userprofile_serializer = UserProfileSerializer(userprofile)
+
+    data_to_return = {
+        'your_userprofile': current_user_serializer.data,
+        'you_unfollowed': userprofile_serializer.data,
+        'message': f'You\'ve unfollowed {userprofile.user.username}'
+    }
+    
+    return Response(data_to_return, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 def getUserFeed(request):
-    blog_posts = BlogPost.objects.exclude(user = request.user)
+    current_userprofile = request.user.userprofile
+
+    #сначала находим все профили, которые фоловвит текущий юзер
+    #потом получаем queryset юзеров этих профилей для фильтра постов,т.к manytomany именно с моделью User
+    current_userprofile_follows = UserProfile.objects.filter(followed_by = current_userprofile)
+    cur_user_follow = User.objects.filter(userprofile__in = current_userprofile_follows)
+     
+    #только профили, на которые подписан + нету прочитанных юзером постов и его собственных
+    blog_posts = BlogPost.objects.filter(user__in=cur_user_follow).exclude(post_read_by = current_userprofile).exclude(user = request.user)
+    #blog_posts = BlogPost.objects.exclude(post_read_by = userprofile).exclude(user = request.user)
     serializer = BlogPostSerializer(blog_posts, many=True)
-    #posts_to_return = 
+
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -70,7 +116,6 @@ def postMarkAsRead(request, pk):
     userprofile = request.user.userprofile
     blog_post = BlogPost.objects.get(pk=pk)
     blog_post.post_read_by.add(userprofile)
-    blog_post.save()
 
     userprofile_serializer = UserProfileSerializer(userprofile, many=False)
     blogpost_serializer = BlogPostSerializer(blog_post, many=False)
