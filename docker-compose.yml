@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+    restart: always
+    volumes:
+      - .:/app
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: blog_db
+    command: python manage.py runserver 0.0.0.0:8000
+    # command: >
+    #         sh -c "sleep 10 &&
+    #         python manage.py makemigrations&& 
+    #         python manage.py migrate &&
+    #         python manage.py createsuperuser"
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: blog_db
+    volumes:
+      - postgres_data:/var/lib/postgres
+    ports:
+      - '5432:5432'
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - '8888:8080'
+
+volumes:
+  postgres_data:
