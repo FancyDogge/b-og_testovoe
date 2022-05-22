@@ -11,17 +11,13 @@ services:
     volumes:
       - .:/app
     environment:
+      CELERY_BROKER: redis://redis:6379/0
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
       POSTGRES_HOST: postgres
       POSTGRES_PORT: '5432'
       POSTGRES_DB: blog_db
     command: python manage.py runserver 0.0.0.0:8000
-    # command: >
-    #         sh -c "sleep 10 &&
-    #         python manage.py makemigrations&& 
-    #         python manage.py migrate &&
-    #         python manage.py createsuperuser"
   postgres:
     image: postgres
     restart: always
@@ -38,6 +34,36 @@ services:
     restart: always
     ports:
       - '8888:8080'
+  celery:
+    build: .
+    command: celery -A blog_api worker -l INFO
+    volumes:
+        - .:/app
+    environment:
+        DEBUG: '1'
+        CELERY_BROKER: 'redis://redis:6379/0'
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: password
+        POSTGRES_HOST: postgres
+        POSTGRES_PORT: '5432'
+        POSTGRES_DB: blog_db
+    depends_on:
+        - api
+        - redis 
+    restart: on-failure
+  celery-beat:
+    build: .
+    command: celery -A blog_api beat -l INFO
+    volumes:
+      - .:/app
+    environment:
+        DEBUG: '1'
+    depends_on:
+      - api
+      - celery
+      - redis
+  redis:
+    image: "redis:alpine"
 
 volumes:
   postgres_data:
