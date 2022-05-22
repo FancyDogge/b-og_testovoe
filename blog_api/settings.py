@@ -143,7 +143,8 @@ CELERY_IMPORTS = ['api.tasks']
 CELERY_BEAT_SCHEDULE = {
 'celery_mail_blogposts': {
     'task': 'api.tasks.get_posts_and_send_email',
-    'schedule': crontab(minute='*/5'),
+    # каждый день в 10 утра
+    'schedule': crontab(minute='0', hours='10'),
 },
 }
 
