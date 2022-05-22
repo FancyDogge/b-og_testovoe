@@ -43,11 +43,3 @@ docker-compose exec api python manage.py migrate
 docker-compose exec api python manage.py createsuperuser
 ```
 После этого, с помощью админки можно заполнить базу данных юзерами и постами от них, на указанные в профилях почты должен приходить список постов юзеров, на которых подписаны пользователи
-
-Получения токена аутентифицации
-
-```
-url = "http://127.0.0.1:8000/login/"
-payload={'username': 'someusername',
-         'password': 'somepassword'}
-```
