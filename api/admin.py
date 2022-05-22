@@ -12,7 +12,7 @@ class BlogPostInline(admin.StackedInline):
 
 class UserAdmin(admin.ModelAdmin):
     model = User
-    fields = ['username']
+    fields = ['username', 'email']
     inlines = [UserProfileInline, BlogPostInline]
 
 

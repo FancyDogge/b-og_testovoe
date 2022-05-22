@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -17,6 +17,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # что будет добавленно в шифрованный токен
         data['username'] = self.user.username
+        data['email'] = self.user.email
         data['user_id'] = self.user.id
         data['profile_id'] = self.user.userprofile.id
         # ...
@@ -105,7 +106,7 @@ def getUserFeed(request):
      
     #только профили, на которые подписан + нету прочитанных юзером постов и его собственных
     blog_posts = BlogPost.objects.filter(user__in=cur_user_follow).exclude(post_read_by = current_userprofile).exclude(user = request.user)
-    #blog_posts = BlogPost.objects.exclude(post_read_by = userprofile).exclude(user = request.user)
+
     serializer = BlogPostSerializer(blog_posts, many=True)
 
     return Response(serializer.data, status=status.HTTP_200_OK)
